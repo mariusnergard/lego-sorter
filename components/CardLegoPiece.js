@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, makeStyles } from '@material-ui/core';
 import Button from './lib/buttons/Button';
+import { AppContext } from '../context/AppContext';
 
 const PieceStyle = styled.div`
   height: 100%;
@@ -56,53 +58,67 @@ const profileVariants = {
 };
 
 
-const CardLegoPiece = ({ piece, sets, setPartComplete }) => {
+const CardLegoPiece = ({ piece, sets }) => {
+  const { addToCount } = useContext(AppContext);
+
   const [isMaximized, toggleMaximized] = useState(false);
-  const [isLoading, toggleLoading] = useState(true);
-  const [useQuantity, setQuantity] = useState();
+  const [useQuantity, setQuantity] = useState(piece.sets);
 
-  useEffect(() => {
-    setQuantity(piece.sets);
-    toggleLoading(false);
-  }, []);
-
-  const handleClick = (index) => {
+  const handleClick = async (setId) => {
     const prev = useQuantity;
-    prev[index].collected += 1;
+    const { data } = await axios.get('/api/collectPart', {
+      params: {
+        setId,
+        partId: piece.id,
+      },
+    });
+    prev[setId].collected = data.updatedCountTo;
+    addToCount(setId);
     setQuantity({ ...prev });
-    if (prev[index].quantity - prev[index].collected === 0) {
-      setPartComplete(piece.id);
-    }
   };
 
-  if (isLoading) return <p />;
+  const notComplete = sets.filter((set, i) => (piece.sets[sets[i]] && (useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected) !== 0)).length;
 
   return (
-    <Card style={{ borderRadius: '2rem' }}>
-      <PieceStyle>
-        <PieceImage
-          onClick={() => toggleMaximized(prev => !prev)}
-          url={piece.img}
-          variants={profileVariants}
-          initial="min"
-          animate={isMaximized ? 'max' : 'min'}
-        />
-        <PieceBoxes>
-          {sets.map((set, i) => {
-            const toBeSorted = (piece.sets[sets[i]] && (useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected) !== 0);
-            const func = (toBeSorted) ? () => handleClick(sets[i]) : null;
-            return (
-              <Button
-                style={{ ...buttonStyle, ...buttonStyles[i] }}
-                onClick={func}
-              >
-                {(toBeSorted) ? useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected : '👍'}
-              </Button>
-            );
-          })}
-        </PieceBoxes>
-      </PieceStyle>
-    </Card>
+    <AnimatePresence>
+      {
+        notComplete && (
+          <motion.div
+            key={`motion_${piece.id}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Card style={{ borderRadius: '2rem' }}>
+              <PieceStyle>
+                <PieceImage
+                  onClick={() => toggleMaximized(prev => !prev)}
+                  url={piece.img}
+                  variants={profileVariants}
+                  initial="min"
+                  animate={isMaximized ? 'max' : 'min'}
+                />
+                <PieceBoxes>
+                  {sets.map((set, i) => {
+                    const toBeSorted = (piece.sets[sets[i]] && (useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected) !== 0);
+                    const func = (toBeSorted) ? () => handleClick(sets[i]) : null;
+                    return (
+                      <Button
+                        key={`button_${i}`}
+                        style={{ ...buttonStyle, ...buttonStyles[i] }}
+                        onClick={func}
+                      >
+                        {(toBeSorted) ? useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected : '👍'}
+                      </Button>
+                    );
+                  })}
+                </PieceBoxes>
+              </PieceStyle>
+            </Card>
+          </motion.div>
+        )
+      }
+    </AnimatePresence>
   );
 };
 

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ThemeProvider } from '@material-ui/styles';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { motion } from 'framer-motion';
 import MUITheme from '../src/theme';
 
-import { AppContextProvider } from '../context/AppContext';
+import { AppContext } from '../context/AppContext';
+
 import Meta from './Meta';
 import GlobalStyle from './styles/_globalStyle';
 import WithStyles from './styles/GlobalCSSVars';
@@ -86,15 +88,50 @@ const ProgressStyle = styled.div`
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
   grid-auto-rows: 1fr;
-  zIndex: 2;
+  z-index: 2;
+  .bar {
+    display: grid;
+    justify-items: center;
+    align-items: center;
+  }
 `;
 
-const Progress = () => (
-  <ProgressStyle>
-    <div style={{ width: '10%', backgroundColor: 'green' }}>10%</div>
-    <div style={{ width: '30%', backgroundColor: 'blue' }}>30%</div>
-  </ProgressStyle>
-);
+const progressStyles = [
+  {
+    backgroundColor: 'var(--mainColor)',
+    color: 'var(--white)',
+  },
+  {
+    backgroundColor: 'var(--detailColor)',
+  },
+  {
+    backgroundColor: 'var(--grey)',
+    color: 'var(--white)',
+  },
+];
+
+const Progress = () => {
+  const { useSetCounts } = useContext(AppContext);
+
+  return (
+    <ProgressStyle>
+      {useSetCounts.map((set, i) => {
+        const percent = Math.round(set.collected / set.count * 100);
+        return (
+          <motion.div
+            key={set.id}
+            className="bar"
+            initial={{ width: 0 }}
+            animate={{ width: `${percent}%` }}
+            style={{ minWidth: '1%', width: `${percent}%`, backgroundColor: progressStyles[i].backgroundColor }}
+          >
+            {`${percent}%`}
+          </motion.div>
+        );
+      })}
+    </ProgressStyle>
+  );
+};
 
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
