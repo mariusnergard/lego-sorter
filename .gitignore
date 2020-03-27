@@ -9,3 +9,4 @@ layout.md
 variables.env
 .env
 sslcert/
+db/*.json

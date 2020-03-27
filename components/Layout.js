@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ThemeProvider } from '@material-ui/styles';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -12,12 +12,14 @@ import GlobalStyle from './styles/_globalStyle';
 import WithStyles from './styles/GlobalCSSVars';
 
 const LayoutStyle = styled.div`
-  width: 100vw;
-  min-height: 100%;
-  max-height: 100%;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  max-height: 100vh;
+  max-height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
   background-color: var(--mainColor);
   .header1 {
     color: var(--mainColor);
@@ -32,14 +34,9 @@ const Dashboard = styled.div`
   grid-template-rows: 5rem 1fr 9rem;
   background-color: var(--textBackgroundColor);
   color: var(--white);
-  max-height: 100vh;
-  height: 100vh;
-  //overflow-y: scroll;
-  justify-content: stretch;
   .header {
     display: grid;
     align-items: center;
-    padding: 1rem;
     font-size: 24px;
     background-color: var(--mainColor);
   }
@@ -64,22 +61,34 @@ const Dashboard = styled.div`
   }
 `;
 
-const Layout = ({ children, customTheme }) => (
-  <ThemeProvider theme={MUITheme}>
-    <GlobalStyle />
-    <LayoutStyle customStyles={customTheme}>
-      <WithStyles customStyles={customTheme} />
-      <Meta />
-      <Dashboard>
-        <div className="header">
-          Lego Sorter!
-        </div>
-        {children}
-        <Progress />
-      </Dashboard>
-    </LayoutStyle>
-  </ThemeProvider>
-);
+const Layout = ({ children, customTheme }) => {
+
+  useEffect(() => {
+    // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+    const vh = window.innerHeight * 0.01;
+    const vw = window.innerWidth;
+
+    // Then we set the value in the --vh custom property to the root of the document
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }, []);
+
+  return (
+    <ThemeProvider theme={MUITheme}>
+      <GlobalStyle />
+      <LayoutStyle customStyles={customTheme}>
+        <WithStyles customStyles={customTheme} />
+        <Meta />
+        <Dashboard>
+          <div className="header">
+            Lego Sorter!
+          </div>
+          {children}
+          <Progress />
+        </Dashboard>
+      </LayoutStyle>
+    </ThemeProvider>
+  );
+};
 
 const ProgressStyle = styled.div`
   background-color: var(--white);
@@ -98,14 +107,14 @@ const ProgressStyle = styled.div`
 
 const progressStyles = [
   {
-    backgroundColor: 'var(--mainColor)',
+    backgroundColor: '#f54242',
     color: 'var(--white)',
   },
   {
-    backgroundColor: 'var(--detailColor)',
+    backgroundColor: '#42f587',
   },
   {
-    backgroundColor: 'var(--grey)',
+    backgroundColor: '#a142f5',
     color: 'var(--white)',
   },
 ];

@@ -10,7 +10,7 @@ export default async (req, res) => {
   } = req.query;
   const setRes = await axios.get(`https://rebrickable.com/api/v3/lego/sets/${setId}/parts/`, {
     headers: {
-      Authorization: 'key 0a38aa870374a51a48ec5a83ed950176',
+      Authorization: `key ${process.env.rebrickableApiKey}`,
     },
   });
 

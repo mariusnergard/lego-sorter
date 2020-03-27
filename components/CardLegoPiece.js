@@ -8,9 +8,15 @@ import { AppContext } from '../context/AppContext';
 
 const PieceStyle = styled.div`
   height: 100%;
+  max-height: 100%;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 200px 3.5fr;
+  grid-template-rows: 1fr 2rem 7rem;
+  .name {
+    justify-self: center;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+  }
 `;
 
 const PieceImage = styled(motion.div)`
@@ -36,14 +42,14 @@ const buttonStyle = {
 
 const buttonStyles = [
   {
-    backgroundColor: 'var(--mainColor)',
+    backgroundColor: '#f54242',
     color: 'var(--white)',
   },
   {
-    backgroundColor: 'var(--detailColor)',
+    backgroundColor: '#42f587',
   },
   {
-    backgroundColor: 'var(--grey)',
+    backgroundColor: '#a142f5',
     color: 'var(--white)',
   },
 ];
@@ -58,26 +64,10 @@ const profileVariants = {
 };
 
 
-const CardLegoPiece = ({ piece, sets }) => {
-  const { addToCount } = useContext(AppContext);
-
+const CardLegoPiece = ({ piece, sets, collectPart }) => {
   const [isMaximized, toggleMaximized] = useState(false);
-  const [useQuantity, setQuantity] = useState(piece.sets);
 
-  const handleClick = async (setId) => {
-    const prev = useQuantity;
-    const { data } = await axios.get('/api/collectPart', {
-      params: {
-        setId,
-        partId: piece.id,
-      },
-    });
-    prev[setId].collected = data.updatedCountTo;
-    addToCount(setId);
-    setQuantity({ ...prev });
-  };
-
-  const notComplete = sets.filter((set, i) => (piece.sets[sets[i]] && (useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected) !== 0)).length;
+  const notComplete = sets.filter((set, i) => (piece.sets[sets[i]] && (piece.sets[sets[i]].quantity - piece.sets[sets[i]].collected) !== 0)).length;
 
   return (
     <AnimatePresence>
@@ -89,26 +79,27 @@ const CardLegoPiece = ({ piece, sets }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <Card style={{ borderRadius: '2rem' }}>
+            <Card style={{ borderRadius: '2rem', height: '100%' }}>
               <PieceStyle>
                 <PieceImage
-                  onClick={() => toggleMaximized(prev => !prev)}
+                  // onClick={() => toggleMaximized(prev => !prev)}
                   url={piece.img}
                   variants={profileVariants}
                   initial="min"
                   animate={isMaximized ? 'max' : 'min'}
                 />
+                <p className="name">{piece.id}</p>
                 <PieceBoxes>
                   {sets.map((set, i) => {
-                    const toBeSorted = (piece.sets[sets[i]] && (useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected) !== 0);
-                    const func = (toBeSorted) ? () => handleClick(sets[i]) : null;
+                    const toBeSorted = (piece.sets[sets[i]] && (piece.sets[sets[i]].quantity - piece.sets[sets[i]].collected) !== 0);
+                    const func = (toBeSorted) ? () => collectPart(piece.id, sets[i]) : null;
                     return (
                       <Button
                         key={`button_${i}`}
                         style={{ ...buttonStyle, ...buttonStyles[i] }}
                         onClick={func}
                       >
-                        {(toBeSorted) ? useQuantity[sets[i]].quantity - useQuantity[sets[i]].collected : '👍'}
+                        {(toBeSorted) ? piece.sets[sets[i]].quantity - piece.sets[sets[i]].collected : '👍'}
                       </Button>
                     );
                   })}
