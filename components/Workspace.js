@@ -48,7 +48,7 @@ const Workspace = () => {
   const [useSets, setSets] = useState([]);
   const [useUnsortedParts, setUnsortedParts] = useState({});
   const [usePieces, setPieces] = useState({});
-  const [useSetsList, setSetsList] = useState(['31052-1']);
+  const [useSetsList, setSetsList] = useState(['31052-1', '60079-1']);
   const [usePage, setPage] = useState(0);
 
   const nextPage = (() => {
