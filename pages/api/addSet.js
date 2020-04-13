@@ -9,6 +9,9 @@ export default async (req, res) => {
     setId,
   } = req.query;
   const setRes = await axios.get(`https://rebrickable.com/api/v3/lego/sets/${setId}/parts/`, {
+    params: {
+      page_size: 3000
+    },
     headers: {
       Authorization: `key ${process.env.rebrickableApiKey}`,
     },

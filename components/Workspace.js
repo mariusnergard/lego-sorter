@@ -48,7 +48,7 @@ const Workspace = () => {
   const [useSets, setSets] = useState([]);
   const [useUnsortedParts, setUnsortedParts] = useState({});
   const [usePieces, setPieces] = useState({});
-  const [useSetsList, setSetsList] = useState(['31052-1', '60079-1', '31037-1']);
+  const [useSetsList, setSetsList] = useState(['31052-1']);
   const [usePage, setPage] = useState(0);
 
   const nextPage = (() => {
@@ -85,7 +85,6 @@ const Workspace = () => {
   });
 
   const updatePartsList = () => {
-    console.log('setting list');
     const pieceIds = Object.keys(usePieces).sort();
     const newList = {};
     for (let i = 0; i < pieceIds.length; i++) {
@@ -154,7 +153,6 @@ const Workspace = () => {
     fetchData();
     // Todo - set useSetsList as deps when connected to db
   }, []);
-  console.log(usePage * perPage);
   return (
     <WorkSpaceStyle>
       <div className="prev" onClick={prevPage}>👈</div>
