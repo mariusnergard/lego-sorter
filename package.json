@@ -24,7 +24,7 @@
     "@zeit/next-css": "^1.0.1",
     "alertifyjs": "^1.11.2",
     "autosuggest-highlight": "^3.1.1",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-plugin-add-react-displayname": "0.0.5",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
